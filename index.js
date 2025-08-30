@@ -46,7 +46,7 @@ app.post("/sendNotification", async (req, res) => {
     };
 
     // Send to multiple devices
-    const response = await admin.messaging().sendMulticast(message);
+    const response = await admin.messaging().sendEachForMulticast(message);
     console.log("FCM Response:", response);
 
     res.json({ message: "Notification sent", successCount: response.successCount });
@@ -56,5 +56,5 @@ app.post("/sendNotification", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = Number(process.env.PORT) || 8000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
