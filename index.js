@@ -48,7 +48,7 @@ app.post("/sendNotification", async (req, res) => {
     // Build notification
     const message = {
       data: {
-        notificationId: stringToIntHash(userName+update+details),
+        notificationId: String(stringToIntHash(userName+update+details)),
         userName,
         update,
         details,
@@ -58,7 +58,7 @@ app.post("/sendNotification", async (req, res) => {
 
     // Send to multiple devices
     const response = await admin.messaging().sendEachForMulticast(message);
-    console.log("FCM Response:", response);
+    console.log("FCM Response:", JSON.stringify(response));
 
     res.json({ message: "Notification sent", successCount: response.successCount });
   } catch (err) {
