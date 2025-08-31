@@ -13,11 +13,20 @@ const db = admin.firestore();
 const app = express();
 app.use(bodyParser.json());
 
+function stringToIntHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
+}
+
 app.post("/sendNotification", async (req, res) => {
   try {
-    const { userId, title, description } = req.body;
+    const { currentDeviceFcmToken, userName, update, details } = req.body;
 
-    if (!userId || !title || !description) {
+    if (!currentDeviceFcmToken || !userName || !update) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -27,7 +36,7 @@ app.post("/sendNotification", async (req, res) => {
 
     snapshot.forEach(doc => {
       const userData = doc.data();
-      if (userData.fcmToken && doc.id !== userId) {
+      if (userData.fcmToken && userData.fcmToken !== currentDeviceFcmToken) {
         tokens.push(userData.fcmToken);
       }
     });
@@ -38,9 +47,11 @@ app.post("/sendNotification", async (req, res) => {
 
     // Build notification
     const message = {
-      notification: {
-        title: "New Update Posted",
-        body: `${title} - ${description.substring(0, 30)}...`,
+      data: {
+        notificationId: stringToIntHash(userName+update+details),
+        userName,
+        update,
+        details,
       },
       tokens: tokens,
     };
